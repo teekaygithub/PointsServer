@@ -45,6 +45,7 @@ public class UserPointsService {
         }
     }
     
+	// Retrieves point balance for a specific payer
     public Map<String, Integer> getUserBalance() {
         List<String> users = userPointsRepository.findDistinctUsers();
         Map<String, Integer> userBalance = new HashMap<>();
@@ -57,8 +58,8 @@ public class UserPointsService {
     public List<UserPoints> processTransaction (Integer amount) {
         Integer totalBalance = 0;
         List<UserPoints> total = getRecentTransactions(headId);
-        List<UserPoints> deductions = new ArrayList<>();
-        Map<String, Integer> accounts = getUserBalance();
+        List<UserPoints> deductions = new ArrayList<>();  // List of deductions for each payer
+        Map<String, Integer> accounts = getUserBalance(); // Total balance of each payer
         
         // Stop any further calculation if the requested amount exceeds the total points balance
         for (String user : accounts.keySet()) {
@@ -76,6 +77,7 @@ public class UserPointsService {
         Integer point = 0;
         Integer delta = 0;
         
+		// Initialize the deduction list
         for (String user : accounts.keySet()) {
             UserPoints up = new UserPoints();
             up.setName(user);
@@ -85,6 +87,7 @@ public class UserPointsService {
         }
         
         while (remaining > 0) {
+			// Get the oldest transaction record
             UserPoints temp = total.remove(0);
             name = temp.getName();
             point = temp.getPoints();

@@ -21,12 +21,13 @@ public class MainController {
     @Autowired
     UserPointsService userPointsService;
     
-    // Return point balance per user that would list all positive points per payer
+    // Returns every single transaction recorded
     @GetMapping("/api/all")
-    private List<UserPoints> getBalance() {
+    private List<UserPoints> getAllTransactions() {
         return userPointsService.getAllTransactions();
     }
     
+	// Returns total point balance for each distinct payer
     @GetMapping("/api/balance")
     private Map<String, Integer> getBalanceByUser() {
         return userPointsService.getUserBalance();
