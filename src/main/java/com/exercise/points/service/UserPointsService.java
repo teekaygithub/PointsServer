@@ -17,6 +17,7 @@ import java.util.Date;
 public class UserPointsService {
     
     private Logger log = LoggerFactory.getLogger(UserPointsService.class);
+	private Integer headId = 0;
     
     @Autowired
     UserPointsRepository userPointsRepository;
@@ -26,6 +27,10 @@ public class UserPointsService {
         userPointsRepository.findAll().forEach(userPoint -> userPointsList.add(userPoint));
         return userPointsList;
     }
+	
+	public List<UserPoints> getRecentTransactions(int id) {
+		return userPointsRepository.findRecentTransactions(id);
+	}
     
     public void saveTransaction (UserPoints transaction) {
         Integer balance = userPointsRepository.findUserBalance(transaction.getName());
@@ -33,6 +38,7 @@ public class UserPointsService {
         
         // Do not allow any transaction that will make a payer's balance go below 0
         if ((balance + transaction.getPoints()) >= 0) {
+			log.info("save name: {}, points: {}", transaction.getName(), transaction.getPoints());
             userPointsRepository.save(transaction);
         } else {
             log.error("Cannot complete transaction, insufficient fund for payer {}", transaction.getName());
@@ -50,7 +56,7 @@ public class UserPointsService {
     
     public List<UserPoints> processTransaction (Integer amount) {
         Integer totalBalance = 0;
-        List<UserPoints> total = getAllTransactions();
+        List<UserPoints> total = getRecentTransactions(headId);
         List<UserPoints> deductions = new ArrayList<>();
         Map<String, Integer> accounts = getUserBalance();
         
@@ -82,9 +88,12 @@ public class UserPointsService {
             UserPoints temp = total.remove(0);
             name = temp.getName();
             point = temp.getPoints();
+			log.info("Payer:{}, points: {}", name, point);
             
             if (remaining >= point) {
-                delta = point;
+				// The points from this transaction is completely spent, increment the head pointer
+				headId++;
+                delta = point;				
             } else {
                 delta = remaining;
             }
@@ -101,7 +110,9 @@ public class UserPointsService {
         
         // Update the new payer balance
         for (UserPoints user : deductions) {
-            saveTransaction(user);
+			if (user.getPoints() != 0) {
+				saveTransaction(user);
+			}
         }
         
         return deductions;

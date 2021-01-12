@@ -9,7 +9,10 @@ public interface UserPointsRepository extends CrudRepository <UserPoints, Intege
     
     @Query("SELECT DISTINCT up.name FROM UserPoints up")
     List<String> findDistinctUsers();
+	
+	@Query("SELECT up FROM UserPoints up WHERE id > ?1")
+	List<UserPoints> findRecentTransactions(int id);
     
-    @Query("SELECT SUM(points) from UserPoints WHERE name = ?1")
+    @Query("SELECT SUM(points) FROM UserPoints WHERE name = ?1")
     Integer findUserBalance(String name);
 }
