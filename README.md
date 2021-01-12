@@ -24,3 +24,17 @@ PROCEDURE
 		-- example: localhost:8080/api/spend?amount=100
 	=> Get total points balance for each distinct payer: 	localhost:8080/api/balance
 	=> Get every recorded transaction: 						localhost:8080/api/all
+
+	
+OUTSTANDING ISSUES
+
+The points-deduction API does not take into account the balance of each individual payer. Although the overall balance is respected (i.e. total points balance of all payers combined), you will not be able to deduct points even if your request is under the total balance. Example:
+
+Your record:
+[MILLER, 10000, ...]
+[MILLER, -4000, ...]
+[MILLER, -4000, ...]
+[DANNON, 10000, ...]
+
+Deduction request for 3000 points will fail because MILLER only has 2,000 points left despite the total balance being enough to process this deduction. The balance will still be:
+{"MILLER": 2000, "DANNON": 10000}
