@@ -32,7 +32,7 @@ public class UserPointsService {
         if (balance == null) {balance = 0;}
         
         // Do not allow any transaction that will make a payer's balance go below 0
-        if ((balance + transaction.getPoints()) > 0) {
+        if ((balance + transaction.getPoints()) >= 0) {
             userPointsRepository.save(transaction);
         } else {
             log.error("Cannot complete transaction, insufficient fund for payer {}", transaction.getName());
@@ -88,15 +88,6 @@ public class UserPointsService {
             } else {
                 delta = remaining;
             }
-            
-            // // Make sure no payer's points go below 0
-            // Integer newBalance = accounts.get(name) - delta;
-            // if (newBalance < 0) {
-                // delta = accounts.get(name);
-                // accounts.replace(name, 0);
-            // } else {
-                // accounts.replace(name, newBalance);
-            // }
             
             remaining -= delta;
             log.info("Remaining amount: {}", remaining);
